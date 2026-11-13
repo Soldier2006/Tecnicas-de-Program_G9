@@ -1,0 +1,7 @@
+build/
+datos/
+*.lock
+*.tmp
+config-local.*
+lib/*auth*.dll
+T3_grupo_*.zip

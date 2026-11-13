@@ -1,0 +1,112 @@
+@startuml
+title Bodexa - clases principales de la versión final
+skinparam classAttributeIconSize 0
+class Categoria {
+ -id : int
+ -nombre : String
+ +Categoria(id, nombre)
+ +getId() : int
+ +getNombre() : String
+}
+class Producto {
+ -id : int
+ -nombre : String
+ -precio : BigDecimal
+ -stock : int
+ -categoria : Categoria
+ +descontar(cantidad : int) : void
+ +reponer(cantidad : int) : void
+ +tieneStockBajo() : boolean
+}
+class DetalleVenta {
+ -productoId : int
+ -nombreProducto : String
+ -cantidad : int
+ -precioUnitario : BigDecimal
+ +getSubtotal() : BigDecimal
+}
+class Venta {
+ -id : int
+ -fecha : LocalDateTime
+ -detalles : List<DetalleVenta>
+ +getTotal() : BigDecimal
+ +getDetalles() : List<DetalleVenta>
+}
+class AlertaStock {
+ -id : int
+ -productoId : int
+ -fecha : LocalDateTime
+ -atendida : boolean
+ +atender() : void
+ +isAtendida() : boolean
+}
+class EstadoBodega {
+ -categorias : Map<Integer,Categoria>
+ -productos : Map<Integer,Producto>
+ -ventas : List<Venta>
+ -alertas : List<AlertaStock>
+ +getProductos() : Map<Integer,Producto>
+ +getVentas() : List<Venta>
+}
+interface Repositorio {
+ +cargar() : EstadoBodega
+ +guardar(estado : EstadoBodega) : void
+ +close() : void
+}
+class RepositorioArchivo {
+ -archivo : Path
+ -canal : FileChannel
+ -bloqueo : FileLock
+ +cargar() : EstadoBodega
+ +guardar(estado : EstadoBodega) : void
+ +close() : void
+}
+class RepositorioSql {
+ -conexion : Connection
+ +cargar() : EstadoBodega
+ +guardar(estado : EstadoBodega) : void
+ +close() : void
+}
+class BodegaService {
+ -repositorio : Repositorio
+ -estado : EstadoBodega
+ +buscarProducto(id : int) : Producto
+ +buscarProducto(texto : String) : List<Producto>
+ +guardarProducto(id, nombre, precio, stock, categoriaId, editar) : void
+ +registrarCategoria(nombre : String) : void
+ +registrarVenta(cantidades : Map<Integer,Integer>) : Venta
+ +reponer(id : int, cantidad : int) : void
+ +eliminarProducto(id : int) : void
+ +unidadesVendidas(id : int) : long
+}
+class VentanaBodega {
+ -servicio : BodegaService
+ -cantidades : Map<Integer,Integer>
+ +refrescar() : void
+ +mostrarMensaje(texto : String, error : boolean) : void
+}
+class Main {
+ +{static} main(args : String[]) : void
+}
+Producto "0..*" --> "1" Categoria
+Venta "1" *-- "1..*" DetalleVenta
+DetalleVenta ..> Producto : referencia por ID; conserva nombre y precio
+AlertaStock ..> Producto : referencia por ID
+EstadoBodega "1" o-- "0..*" Producto
+EstadoBodega "1" o-- "0..*" Categoria
+EstadoBodega "1" o-- "0..*" Venta
+EstadoBodega "1" o-- "0..*" AlertaStock
+BodegaService --> "1" Repositorio
+BodegaService --> "1" EstadoBodega
+RepositorioArchivo ..|> Repositorio
+RepositorioSql ..|> Repositorio
+VentanaBodega --> "1" BodegaService
+VentanaBodega --|> JFrame
+Main ..> VentanaBodega
+Main ..> RepositorioArchivo
+Main ..> RepositorioSql
+note bottom
+Se omiten getters triviales y componentes Swing para legibilidad.
+Las referencias por ID no son atributos de tipo Producto.
+end note
+@enduml

@@ -1,0 +1,1 @@
+APROBADO: el JAR extraído inicia su ventana Swing mediante bodexa.Main, sin librerías adicionales en modo local.

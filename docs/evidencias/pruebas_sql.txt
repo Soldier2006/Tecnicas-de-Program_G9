@@ -1,0 +1,5 @@
+Changed database context to 'BodexaT3'.
+SQL01 APROBADO: tablas, relaciones, venta y stock 6 -> 4 en transaccion.
+SQL02 APROBADO: restriccion impide stock negativo.
+SQL03 APROBADO: indice impide dos alertas pendientes por producto.
+SQL04 APROBADO: rollback completo; no quedan datos de prueba.
